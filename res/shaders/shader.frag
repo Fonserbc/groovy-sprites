@@ -11,6 +11,16 @@ vec2 grooveDisplacement (int level) {
 	return -grooveDir.xz*grooveScale* float(level)/float(GROOVE_LEVELS);
 }
 
+bool fallsOnRange (vec2 coord) {
+	return coord.x > 0.0 && coord.x < 1.0 &&
+		coord.y > 0.0 && coord.y < 1.0;
+}
+
+float lightFromGroove (float groove) {		
+	float lightApport = 0.5;
+	return groove*lightApport + (1.0-lightApport);
+}
+
 void main(void) {
 	vec2 texCoord = texCoord0.xy * rendererScale - (rendererScale - vec2(1.0))/2.0;
 	vec2 grooveCoord = texCoord;
@@ -21,24 +31,32 @@ void main(void) {
 	for (int i = GROOVE_LEVELS; i >= 0; --i) {
 		grooveCoord = texCoord + grooveDisplacement(i);
 		
-		if (grooveCoord.x > 0.0 && grooveCoord.x < 1.0 &&
-			grooveCoord.y > 0.0 && grooveCoord.y < 1.0) {
+		if (fallsOnRange(grooveCoord)) {
 			
 			groove = texture2D(grooveTexture, grooveCoord);
 			int g = int(groove.r * float(GROOVE_LEVELS));
 			
 			if (g == i && g >= max) {
 				color = texture2D(texture, grooveCoord);
-				float h = groove.r;
 				
-				float lightApport = 0.5;
-				color *= h*lightApport + (1.0-lightApport);
+				color *= lightFromGroove(groove.r);
 				
 				max = g;
 			}
 		}
 	}
 	
-	if (color.a <= 0.0) { discard; }
-	else gl_FragColor = color;
+	if (color.a <= 0.0) {
+		if (fallsOnRange(texCoord)) {
+			color = texture2D(texture, texCoord);
+		
+			groove = texture2D(grooveTexture, texCoord);
+			color *= lightFromGroove(groove.r)*0.5;
+		}
+		
+		if (color.a <= 0.0) {
+			discard;
+		}
+	}
+	gl_FragColor = color;
 }
