@@ -23,6 +23,7 @@ define('src/GroovySprite', [
 	GroovySprite.GROOVE_DIR = "grooveDir";
 	GroovySprite.GROOVE_LEVELS = "grooveLevels";
 	GroovySprite.RENDERER_SCALE = "rendererScale";
+	GroovySprite.GROOVE_HEIGHT = "grooveHeight";
 
 	function GroovySprite (goo, sizeX, sizeY, grooveLevels, texture, groovyTexture) {
 		this.goo = goo;
@@ -51,6 +52,7 @@ define('src/GroovySprite', [
 		this.material.setTexture(Shader.NORMAL_MAP, groovyTexture);
 		this.material.shader.uniforms.grooveDir = [0.1,1.0,0.5];
 		this.material.shader.defines.GROOVE_LEVELS = this.grooveLevels;
+		this.material.shader.defines.GROOVE_HEIGHT = 3;
 		this.material.shader.uniforms.rendererScale = [this.rendererSize.x/this.size.x, this.rendererSize.y/this.size.y];
 		
 		this.entity.set(this.material);
@@ -65,7 +67,8 @@ define('src/GroovySprite', [
 			fshader : function() {return fragmentShader;},
 			
 			defines: {
-				GROOVE_LEVELS: GroovySprite.GROOVE_LEVELS
+				GROOVE_LEVELS: GroovySprite.GROOVE_LEVELS,
+				GROOVE_HEIGHT: GroovySprite.GROOVE_HEIGHT
 			},
 			
 			attributes: {

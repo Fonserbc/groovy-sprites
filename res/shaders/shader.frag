@@ -1,3 +1,5 @@
+// int GROOVE_LEVELS defined default=8
+// int GROOVE_HEIGHT defined default=3
 uniform sampler2D texture;
 uniform sampler2D grooveTexture;
 uniform vec3 grooveDir;
