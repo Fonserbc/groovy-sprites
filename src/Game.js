@@ -91,7 +91,7 @@ require([
 				var t = entity._world.time;
 				var tpf = entity._world.tpf;
 				
-				gameObject.material.shader.uniforms.grooveDir = [Math.sin(t/2.0),1.0,-Math.sin(t/2.0)];
+				gameObject.material.shader.uniforms.grooveDir = [Math.sin(t/2.0),1.0,-Math.sin(t/3.0)];
 			}
 		}));
 	}

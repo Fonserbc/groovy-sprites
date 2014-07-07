@@ -1,15 +1,16 @@
 // int GROOVE_LEVELS defined default=8
 // int GROOVE_HEIGHT defined default=3
+uniform vec2 RENDERER_SCALE;
+uniform vec2 TEXTURE_SIZE;
 uniform sampler2D texture;
 uniform sampler2D grooveTexture;
 uniform vec3 grooveDir;
-uniform vec2 rendererScale;
 
 varying vec4 vWorldPos;
 varying vec4 texCoord0;
 
 vec2 grooveDisplacement (int level) {
-	vec2 grooveScale = (rendererScale - vec2(1.0))/2.0;
+	vec2 grooveScale = (RENDERER_SCALE - vec2(1.0))/2.0;
 	return -grooveDir.xz*grooveScale* float(level)/float(GROOVE_LEVELS);
 }
 
@@ -24,12 +25,14 @@ float lightFromGroove (float groove) {
 }
 
 void main(void) {
-	vec2 texCoord = texCoord0.xy * rendererScale - (rendererScale - vec2(1.0))/2.0;
+	vec2 texCoord = texCoord0.xy * RENDERER_SCALE - (RENDERER_SCALE - vec2(1.0))/2.0;
+	//vec2 texCoord = (floor(auxCoord*TEXTURE_SIZE*RENDERER_SCALE) + vec2(0.5))/(TEXTURE_SIZE*RENDERER_SCALE);
 	vec2 grooveCoord = texCoord;
 	vec4 color = vec4(0.0);
 	vec4 groove = vec4(0.0);
 	
 	int max = -1;
+	int maxI = -1;
 	for (int i = GROOVE_LEVELS; i >= 0; --i) {
 		grooveCoord = texCoord + grooveDisplacement(i);
 		
@@ -38,27 +41,19 @@ void main(void) {
 			groove = texture2D(grooveTexture, grooveCoord);
 			int g = int(groove.r * float(GROOVE_LEVELS));
 			
-			if (g == i && g >= max) {
+			if (g >= i && g >= max && maxI - i < g - max) {
 				color = texture2D(texture, grooveCoord);
 				
 				color *= lightFromGroove(groove.r);
 				
 				max = g;
+				maxI = i;
 			}
 		}
 	}
 	
 	if (color.a <= 0.0) {
-		if (fallsOnRange(texCoord)) {
-			color = texture2D(texture, texCoord);
-		
-			groove = texture2D(grooveTexture, texCoord);
-			color *= lightFromGroove(groove.r)*0.5;
-		}
-		
-		if (color.a <= 0.0) {
-			discard;
-		}
+		discard;
 	}
 	gl_FragColor = color;
 }
