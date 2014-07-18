@@ -24,12 +24,14 @@ define('src/GroovySprite', [
 	GroovySprite.GROOVE_LEVELS = "grooveLevels";
 	GroovySprite.RENDERER_SCALE = "rendererScale";
 	GroovySprite.TEXTURE_SIZE = "textureSize";
+	GroovySprite.TEXTURE_DELTA = "textureDelta";
 
-	function GroovySprite (goo, sizeX, sizeY, grooveLevels, texture, groovyTexture) {
+	function GroovySprite (goo, sizeX, sizeY, grooveLevels, pixelsPerLevel, texture, groovyTexture) {
 		this.goo = goo;
 		this.texture = texture;
 		this.groovyTexture = groovyTexture;
 		this.grooveLevels = grooveLevels;
+		this.pixelsPerLevel = pixelsPerLevel;
 		
 		this.size = {
 			x: sizeX,
@@ -40,8 +42,8 @@ define('src/GroovySprite', [
 			y: this.size.y / texture.image.height
 		};
 		this.rendererSize = {
-			x: this.size.x + this.pixelSize.x * grooveLevels * 2,
-			y: this.size.y + this.pixelSize.y * grooveLevels * 2
+			x: this.size.x + this.pixelsPerLevel * this.pixelSize.x * grooveLevels * 2,
+			y: this.size.y + this.pixelsPerLevel * this.pixelSize.y * grooveLevels * 2
 		};
 		
 		this.meshData = new Quad(this.rendererSize.x, this.rendererSize.y);
@@ -54,10 +56,12 @@ define('src/GroovySprite', [
 		this.material.shader.defines.GROOVE_LEVELS = this.grooveLevels;
 		this.material.shader.uniforms.TEXTURE_SIZE = [this.texture.image.width, this.texture.image.height];
 		this.material.shader.uniforms.RENDERER_SCALE = [this.rendererSize.x/this.size.x, this.rendererSize.y/this.size.y];
+		this.material.shader.uniforms.TEXTURE_DELTA = [this.rendererSize.x/this.size.x/this.texture.image.width, this.rendererSize.y/this.size.y/this.texture.image.height];
 		
 		this.entity.set(this.material);
 		this.entity.set([-goo.worldWidth/2 + this.rendererSize.x/2,0,0]);
 		
+		this.entity.gameObject = this;
 		this.entity.addToWorld();
 	}
 	
@@ -82,7 +86,8 @@ define('src/GroovySprite', [
 				grooveTexture: Shader.NORMAL_MAP,
 				grooveDir: GroovySprite.GROOVE_DIR,
 				RENDERER_SCALE: GroovySprite.RENDERER_SCALE,
-				TEXTURE_SIZE: GroovySprite.TEXTURE_SIZE
+				TEXTURE_SIZE: GroovySprite.TEXTURE_SIZE,
+				TEXTURE_DELTA: GroovySprite.TEXTURE_DELTA
 			}
 		};
 	};
