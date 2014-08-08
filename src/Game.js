@@ -135,22 +135,23 @@ require([
 		downTime: 0.0,
 		moveTime: 0.0,
 		moved: false,
-		lastMouseDown: new Vector3()
+		lastMouseDown: new Vector3(),
+		isTouch: false
 	};
-	window.ms = mouseStatus;
 
 	function mousedown (event) {
+		if (event.touches) mouseStatus.isTouch = true;
 		mouseStatus.down = true;
 		mouseStatus.downTime = goo.world.time;
 		mouseStatus.moveTime = goo.world.time;
-		mouseStatus.lastMouseDown.x = event.pageX || event.touches[0].clientX;
-		mouseStatus.lastMouseDown.y = event.pageY || event.touches[0].clientY;
+		mouseStatus.lastMouseDown.x = mouseStatus.isTouch? event.touches[0].clientX : event.pageX;
+		mouseStatus.lastMouseDown.y = mouseStatus.isTouch? event.touches[0].clientY : event.pageY;
 	}
 
 	function mousemove (event) {
 		var pos = new Vector3(
-			event.pageX || event.touches[0].clientX,
-			event.pageY || event.touches[0].clientY,
+			mouseStatus.isTouch? event.touches[0].clientX : event.pageX,
+			mouseStatus.isTouch? event.touches[0].clientY : event.pageY,
 			0.0
 		);
 		var diffTime = goo.world.time - mouseStatus.moveTime;
@@ -177,8 +178,8 @@ require([
 		}			
 
 		mouseStatus.moveTime = goo.world.time;
-		mouseStatus.lastMouseDown.x = event.pageX || event.touches[0].clientX;
-		mouseStatus.lastMouseDown.y = event.pageY || event.touches[0].clientY;
+		mouseStatus.lastMouseDown.x = pos.x;
+		mouseStatus.lastMouseDown.y = pos.y;
 	}
 
 	function mouseup (event) {
