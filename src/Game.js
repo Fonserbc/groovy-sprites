@@ -52,6 +52,8 @@ require([
 	goo.ratio = goo.renderer.domElement.clientHeight / goo.renderer.domElement.clientWidth;
 	
 	// Object loading
+
+	// Different sprites need different settings objects
 	var textureSettings = {
 		magFilter: 'NearestNeighbor',
 		minFilter: 'NearestNeighborNoMipMaps',
@@ -93,12 +95,13 @@ require([
 		generateMipmaps: 'false'
 	};
 	
+	// I'm forced to do this to get correct texture sizes
 	var castleTexturePromise = new RSVP.Promise();
 	var castleGroovyPromise = new RSVP.Promise();
 	var towerTexturePromise = new RSVP.Promise();
 	var towerGroovyPromise = new RSVP.Promise();
-	var screwTexturePromise = new RSVP.Promise();
-	var screwGroovyPromise = new RSVP.Promise();
+	var bearTexturePromise = new RSVP.Promise();
+	var bearGroovyPromise = new RSVP.Promise();
 	var gooTexturePromise = new RSVP.Promise();
 	var gooGroovyPromise = new RSVP.Promise();
 	
@@ -107,19 +110,21 @@ require([
 	var castleGroovyTexture = textureCreator.loadTexture2D('res/sprites/castle_h.png',textureSettingsGroovy, function () { castleGroovyPromise.resolve();});
 	var towerTexture = textureCreator.loadTexture2D('res/sprites/tower.png',textureSettings2, function () { towerTexturePromise.resolve()});
 	var towerGroovyTexture = textureCreator.loadTexture2D('res/sprites/tower_h.png',textureSettingsGroovy2, function () { towerGroovyPromise.resolve();});
-	var screwTexture = textureCreator.loadTexture2D('res/sprites/screw.png',textureSettings3, function () {	screwTexturePromise.resolve()});
-	var screwGroovyTexture = textureCreator.loadTexture2D('res/sprites/screw_h.png',textureSettingsGroovy3, function () {	screwGroovyPromise.resolve()});
+	var bearTexture = textureCreator.loadTexture2D('res/sprites/gummy.png',textureSettings3, function () {	bearTexturePromise.resolve()});
+	var bearGroovyTexture = textureCreator.loadTexture2D('res/sprites/gummy_h.png',textureSettingsGroovy3, function () {	bearGroovyPromise.resolve()});
 	var gooTexture = textureCreator.loadTexture2D('res/sprites/goo_logo.png',textureSettings4, function () { gooTexturePromise.resolve()});
 	var gooGroovyTexture = textureCreator.loadTexture2D('res/sprites/goo_logo_h.png',textureSettingsGroovy4, function () { gooGroovyPromise.resolve()}); 
 	
 	new RSVP.all([
 		castleTexturePromise, castleGroovyPromise,
 		towerTexturePromise, towerGroovyPromise,
-		screwTexturePromise, screwGroovyPromise,
+		bearTexturePromise, bearGroovyPromise,
 		gooTexturePromise, gooGroovyPromise
 	]).then(init);
 
-	
+
+	// Interaction
+
 	var centerRotation = 0;
 	var rotationSpeed = 1;
 	var rotationDrag = 1;
@@ -187,13 +192,6 @@ require([
 		mouseStatus.down = event.touches && event.touches.length != 0;
 	}
 
-	document.addEventListener('mousedown', mousedown);
-	document.addEventListener('touchstart', mousedown);
-	document.addEventListener('mousemove', mousemove);
-	document.addEventListener('touchmove', mousemove);
-	document.addEventListener('mouseup', mouseup);
-	document.addEventListener('touchend', mouseup);
-
 	function run (entity) {
 		var t = entity._world.time;
 
@@ -239,13 +237,13 @@ require([
 		center.transformComponent.attachChild(tower.entity.transformComponent);
 		tower.entity.height = 0.5;
 
-		var screwLevels = 8;
-		var screwRatio = screwTexture.image.height / screwTexture.image.width;
-		var screw = new GroovySprite(goo, 1/screwRatio, 1, screwLevels, (screwTexture.image.width/castleTexture.image.width)/(screwLevels/castleLevels), screwTexture, screwGroovyTexture);
-		screw.entity.set([0, -1, 0]);
-		screw.entity.setComponent(new ScriptComponent({run: run}));
-		center.transformComponent.attachChild(screw.entity.transformComponent);
-		screw.entity.height = 0.2;
+		var bearLevels = 8;
+		var bearRatio = bearTexture.image.height / bearTexture.image.width;
+		var bear = new GroovySprite(goo, 1/bearRatio, 1, bearLevels, (bearTexture.image.width/castleTexture.image.width)/(bearLevels/castleLevels), bearTexture, bearGroovyTexture);
+		bear.entity.set([0, -1, 0]);
+		bear.entity.setComponent(new ScriptComponent({run: run}));
+		center.transformComponent.attachChild(bear.entity.transformComponent);
+		bear.entity.height = 0.2;
 
 		var gooLevels = 8;
 		var gooRatio = gooTexture.image.height / gooTexture.image.width;
@@ -266,4 +264,11 @@ require([
 		cameraEntity.set([0,0,1]);
 		cameraEntity.addToWorld();
 	}
+
+	document.addEventListener('mousedown', mousedown);
+	document.addEventListener('touchstart', mousedown);
+	document.addEventListener('mousemove', mousemove);
+	document.addEventListener('touchmove', mousemove);
+	document.addEventListener('mouseup', mouseup);
+	document.addEventListener('touchend', mouseup);
 });
